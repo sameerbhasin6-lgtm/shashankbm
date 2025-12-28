@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-import numpy as np
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -16,19 +15,23 @@ st.set_page_config(
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f5f5;
+        background-color: #f8f9fa;
     }
     .stApp header {
         background-color: #1E3D59;
     }
-    .metric-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        text-align: center;
-    }
     h1, h2, h3 {
+        color: #1E3D59;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .metric-container {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 24px;
         color: #1E3D59;
     }
     </style>
@@ -36,8 +39,9 @@ st.markdown("""
 
 # --- SIDEBAR: INPUT PARAMETERS ---
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/ICICI_Bank_Logo.svg/2560px-ICICI_Bank_Logo.svg.png", width=150)
-    st.title("Credit Assessment Control")
+    # Placeholder for logo
+    st.markdown("## 🏦 ICICI Bank")
+    st.caption("Credit Assessment Control")
     st.markdown("---")
     
     st.subheader("📝 Score Card Inputs (1-10)")
@@ -50,10 +54,9 @@ with st.sidebar:
     p_collateral = st.slider("Collateral Coverage", 1, 10, 0, help="Security offered against the loan")
 
     st.markdown("---")
-    st.caption("Adjust sliders to simulate different scenarios for Tata Steel.")
+    st.info("Adjust sliders to simulate different risk scenarios.")
 
 # --- CALCULATION LOGIC ---
-# Weights defined in the report
 weights = {
     "Financial Ratios": 0.30,
     "Industry Risk": 0.20,
@@ -63,30 +66,28 @@ weights = {
 }
 
 # Calculate Weighted Score
-raw_scores = {
-    "Financial Ratios": p_financial,
-    "Industry Risk": p_industry,
-    "Management Quality": p_management,
-    "Market Position": p_market,
-    "Collateral": p_collateral
-}
-
-final_score = sum(raw_scores[k] * weights[k] for k in weights)
+final_score = (
+    p_financial * weights["Financial Ratios"] +
+    p_industry * weights["Industry Risk"] +
+    p_management * weights["Management Quality"] +
+    p_market * weights["Market Position"] +
+    p_collateral * weights["Collateral"]
+)
 
 # Decision Logic
 if final_score >= 7.5:
     decision = "APPROVED (Unsecured)"
-    color = "green"
+    color_code = "#28a745" # Green
 elif final_score >= 6.0:
     decision = "REVIEW (Require Security)"
-    color = "orange"
+    color_code = "#ffc107" # Orange
 else:
     decision = "REJECT"
-    color = "red"
+    color_code = "#dc3545" # Red
 
 # --- MAIN DASHBOARD LAYOUT ---
 
-st.title("🏦 AI Credit Score Evaluation Dashboard")
+st.title("AI Credit Score Evaluation Dashboard")
 st.markdown(f"### Borrower: **Tata Steel Limited** | Lender: **ICICI Bank**")
 st.markdown("---")
 
@@ -101,8 +102,9 @@ with col3:
 with col4:
     st.metric(label="Piotroski F-Score", value="6 / 9", help="Indicates stable operational efficiency")
 
-# --- ROW 1: SCORE VISUALIZATIONS ---
 st.markdown("### 📊 AI Score Card Analysis")
+
+# --- ROW 1: SCORE VISUALIZATIONS ---
 c1, c2 = st.columns([1, 1])
 
 with c1:
@@ -130,10 +132,10 @@ with c1:
     fig_gauge.update_layout(height=350, margin=dict(l=20,r=20,t=50,b=20))
     st.plotly_chart(fig_gauge, use_container_width=True)
 
-    # Display Decision
+    # Display Decision Box
     st.markdown(f"""
-    <div style="text-align: center; padding: 10px; background-color: {color}; color: white; border-radius: 5px;">
-        <h3>Recommendation: {decision}</h3>
+    <div style="text-align: center; padding: 15px; background-color: {color_code}; color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+        <h3 style="margin:0; color: white;">Recommendation: {decision}</h3>
     </div>
     """, unsafe_allow_html=True)
 
@@ -180,17 +182,18 @@ with c4:
     # Simulating a dip in score due to European operations drag
     scores = [7.2, 7.1, 6.8, 6.5, 6.2, 6.1, 6.0, final_score] 
     
-    # CORRECTED (New Code)
-fig_line = px.area(x=dates, y=scores, title="8-Quarter Credit Score Trend")
-# Change 'fill_color' to 'fillcolor'
-fig_line.update_traces(line_color='#1E3D59', fillcolor='rgba(30, 61, 89, 0.3)')
+    fig_line = px.area(x=dates, y=scores, title="8-Quarter Credit Score Trend")
+    
+    # --- FIX APPLIED HERE: Changed fill_color to fillcolor ---
+    fig_line.update_traces(line_color='#1E3D59', fillcolor='rgba(30, 61, 89, 0.3)')
+    
     fig_line.add_hline(y=7.5, line_dash="dash", line_color="green", annotation_text="Approval Threshold")
     fig_line.update_yaxes(range=[4, 10], title="Credit Score")
     fig_line.update_xaxes(title="Quarter")
     fig_line.update_layout(height=350)
     st.plotly_chart(fig_line, use_container_width=True)
 
-# --- EXPANDER FOR DETAILS ---
+# --- FOOTER ---
 with st.expander("ℹ️ View Detailed Methodology"):
     st.write("""
     **Methodology:**
