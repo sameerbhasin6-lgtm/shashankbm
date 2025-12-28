@@ -180,8 +180,10 @@ with c4:
     # Simulating a dip in score due to European operations drag
     scores = [7.2, 7.1, 6.8, 6.5, 6.2, 6.1, 6.0, final_score] 
     
-    fig_line = px.area(x=dates, y=scores, title="8-Quarter Credit Score Trend")
-    fig_line.update_traces(line_color='#1E3D59', fill_color='rgba(30, 61, 89, 0.3)')
+    # CORRECTED (New Code)
+fig_line = px.area(x=dates, y=scores, title="8-Quarter Credit Score Trend")
+# Change 'fill_color' to 'fillcolor'
+fig_line.update_traces(line_color='#1E3D59', fillcolor='rgba(30, 61, 89, 0.3)')
     fig_line.add_hline(y=7.5, line_dash="dash", line_color="green", annotation_text="Approval Threshold")
     fig_line.update_yaxes(range=[4, 10], title="Credit Score")
     fig_line.update_xaxes(title="Quarter")
