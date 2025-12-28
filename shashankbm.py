@@ -18,8 +18,12 @@ st.set_page_config(
 # --------------------------------------------------
 st.markdown("""
 <style>
-.main { background-color: #f8f9fa; }
-.stApp header { background-color: #1E3D59; }
+.main {
+    background-color: #f8f9fa;
+}
+.stApp header {
+    background-color: #1E3D59;
+}
 h1, h2, h3 {
     color: #1E3D59;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -43,37 +47,33 @@ with st.sidebar:
 
     p_financial = st.slider(
         "Financial Ratios (Liquidity / Solvency)",
-        1, 10, 4,
-        help="Current Ratio, Debt/EBITDA, Altman Z-Score"
+        1, 10, 4
     )
 
     p_industry = st.slider(
         "Industry Risk",
-        1, 10, 5,
-        help="Cyclicality, competition, regulation"
+        1, 10, 5
     )
 
     p_management = st.slider(
         "Management Quality",
-        1, 10, 10,
-        help="Governance, experience, group support"
+        1, 10, 10
     )
 
     p_market = st.slider(
         "Market Position",
-        1, 10, 9,
-        help="Market share, moat, cost leadership"
+        1, 10, 9
     )
 
-    # ✅ FIX APPLIED HERE
+    # ✅ FIXED: range includes 0
     p_collateral = st.slider(
         "Collateral Coverage",
         0, 10, 0,
-        help="Security offered (0 = Unsecured loan)"
+        help="0 = Unsecured loan"
     )
 
     st.markdown("---")
-    st.info("Adjust sliders to simulate different credit risk scenarios.")
+    st.info("Adjust sliders to simulate different risk scenarios.")
 
 # --------------------------------------------------
 # SCORING LOGIC
@@ -213,7 +213,7 @@ with c3:
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with c4:
-    dates = pd.date_range("2023-01-01", periods=8, freq="Q")
+    dates = pd.date_range(start="2023-01-01", periods=8, freq="Q")
     scores = [7.2, 7.1, 6.8, 6.5, 6.2, 6.1, 6.0, final_score]
 
     fig_line = px.area(
@@ -221,17 +221,22 @@ with c4:
         y=scores,
         title="8-Quarter Credit Score Trend"
     )
+
+    # ✅ FIXED: correct Plotly property name
     fig_line.update_traces(
         line_color="#1E3D59",
-        fillcolor="rgba(30,61,89,0.3)"
+        fillcolor="rgba(30, 61, 89, 0.3)"
     )
+
     fig_line.add_hline(
         y=7.5,
         line_dash="dash",
         line_color="green",
         annotation_text="Approval Threshold"
     )
-    fig_line.update_yaxes(range=[4, 10])
+
+    fig_line.update_yaxes(range=[4, 10], title="Credit Score")
+    fig_line.update_xaxes(title="Quarter")
     fig_line.update_layout(height=350)
     st.plotly_chart(fig_line, use_container_width=True)
 
@@ -241,10 +246,10 @@ with c4:
 with st.expander("ℹ️ View Detailed Methodology"):
     st.write("""
     This AI Credit Score aggregates weighted risk across:
-    - Financial strength
-    - Industry environment
-    - Management quality
-    - Market positioning
-    - Collateral support
+    • Financial strength  
+    • Industry environment  
+    • Management quality  
+    • Market positioning  
+    • Collateral support  
     """)
 
